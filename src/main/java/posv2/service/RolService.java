@@ -5,17 +5,17 @@ import java.util.List;
 import posv2.model.Rol;
 import posv2.repository.RolRepository;
 
-public class RolService {
+public class RolService
+implements CrudService<Rol> {
 	
 	 private final RolRepository repository;
 
 	    public RolService() {
 
-	        this.repository =
-	                new RolRepository();
+	        this.repository = new RolRepository();
 	    }
 
-	    public void guardar(Rol rol) {
+	    public Rol guardar(Rol rol) {
 
 	        validarRol(rol);
 
@@ -27,10 +27,15 @@ public class RolService {
 	            );
 	        }
 
-	        repository.guardar(rol);
+	        int idGenerado =
+	                repository.guardar(rol);
+
+	        rol.setIdRol(idGenerado);
+
+	        return rol;
 	    }
 
-	    public void actualizar(Rol rol) {
+	    public Rol actualizar(Rol rol) {
 
 	        validarRol(rol);
 
@@ -47,6 +52,8 @@ public class RolService {
 	        }
 
 	        repository.actualizar(rol);
+
+	        return rol;
 	    }
 
 	    public void eliminar(int idRol) {
@@ -59,9 +66,7 @@ public class RolService {
 	        }
 
 	        Rol rol =
-	                repository.buscarPorId(
-	                        idRol
-	                );
+	                repository.buscarPorId(idRol);
 
 	        if(rol == null) {
 
@@ -75,9 +80,7 @@ public class RolService {
 
 	    public Rol buscarPorId(int idRol) {
 
-	        return repository.buscarPorId(
-	                idRol
-	        );
+	        return repository.buscarPorId(idRol);
 	    }
 
 	    public List<Rol> listar() {
@@ -112,5 +115,6 @@ public class RolService {
 	            );
 	        }
 	    }
+
 
 }

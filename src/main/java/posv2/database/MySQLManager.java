@@ -6,30 +6,78 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class MySQLManager {
-	
+
     private static MySQLManager instance;
 
-    private final String URL =
-            "jdbc:mysql://localhost:3306/pos";
+    private static final String HOST = "localhost";
+    private static final String PORT = "3306";
+    private static final String DATABASE = "pos";
 
-    private final String USER = "root";
-    private final String PASSWORD = "1234";
+    private static final String USER = "root";
+    private static final String PASSWORD = "1234";
+
+    private static final String URL =
+            "jdbc:mysql://"
+                    + HOST
+                    + ":"
+                    + PORT
+                    + "/"
+                    + DATABASE
+                    + "?serverTimezone=UTC";
+
+    private static final Set<String> VALID_TABLES =
+            Set.of(
+                    "empleado",
+                    "rol",
+                    "usuario",
+                    "modulo",
+                    "grupo",
+                    "permiso",
+                    "rolpermiso"
+            );
+
+    private static final Pattern SQL_IDENTIFIER =
+            Pattern.compile(
+                    "^[a-zA-Z][a-zA-Z0-9_]*$"
+            );
+
+    private static final int MAX_STRING_LENGTH = 1000;
 
     private MySQLManager() {
 
+        try {
+
+            Class.forName(
+                    "com.mysql.cj.jdbc.Driver"
+            );
+
+        } catch (ClassNotFoundException e) {
+
+            throw new RuntimeException(
+                    "No se pudo cargar el Driver MySQL.",
+                    e
+            );
+        }
     }
 
     public static synchronized MySQLManager getInstance() {
 
-        if(instance == null) {
+        if (instance == null) {
+
             instance = new MySQLManager();
         }
 
         return instance;
     }
-    
+
     public Connection getConnection()
             throws SQLException {
 
@@ -39,33 +87,96 @@ public class MySQLManager {
                 PASSWORD
         );
     }
+
     
+    public <T> List<T> selectList(
+            String sql,
+            Function<DataRow, T> mapper,
+            Object... params) {
+
+        QueryResult result =
+                select(sql, params);
+
+        List<T> list =
+                new ArrayList<>();
+
+        for(DataRow row : result.getRows()) {
+
+            list.add(
+                    mapper.apply(row)
+            );
+        }
+
+        return list;
+    }
+    
+    public <T> T selectOne(
+            String sql,
+            Function<DataRow,T> mapper,
+            Object... params) {
+
+        QueryResult result =
+                select(sql, params);
+
+        if(result.isEmpty()) {
+
+            return null;
+        }
+
+        return mapper.apply(
+                result.first()
+        );
+    }
+    // =======================================================
+    // SELECT
+    // =======================================================
+
+    public QueryResult select(String sql) {
+
+        return select(
+                sql,
+                new Object[]{}
+        );
+    }
+
     public QueryResult select(
             String sql,
             Object... params) {
 
+        if (sql == null
+                || sql.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "El SQL es obligatorio."
+            );
+        }
+
+        String sqlUpper =
+                sql.trim()
+                        .toUpperCase();
+
+        if (!sqlUpper.startsWith("SELECT")) {
+
+            throw new IllegalArgumentException(
+                    "Solo se permiten consultas SELECT."
+            );
+        }
+
         QueryResult result =
                 new QueryResult();
 
-        try(
+        try (
+                Connection cn =
+                        getConnection();
 
-            Connection cn =
-                    getConnection();
-
-            PreparedStatement ps =
-                    cn.prepareStatement(sql)
-
+                PreparedStatement ps =
+                        cn.prepareStatement(sql)
         ) {
 
-            for(int i = 0;
-                    i < params.length;
-                    i++) {
-
-                ps.setObject(
-                        i + 1,
-                        params[i]
-                );
-            }
+            setParameters(
+                    ps,
+                    params
+            );
 
             ResultSet rs =
                     ps.executeQuery();
@@ -73,103 +184,282 @@ public class MySQLManager {
             ResultSetMetaData meta =
                     rs.getMetaData();
 
-            int totalColumns =
+            int columnCount =
                     meta.getColumnCount();
 
-            while(rs.next()) {
+            while (rs.next()) {
 
                 DataRow row =
                         new DataRow();
 
-                for(int col = 1;
-                        col <= totalColumns;
-                        col++) {
-
-                    String columnName =
-                            meta.getColumnLabel(col);
-
-                    Object value =
-                            rs.getObject(col);
+                for (int col = 1;
+                     col <= columnCount;
+                     col++) {
 
                     row.put(
-                            columnName,
-                            value
+                            meta.getColumnLabel(col),
+                            rs.getObject(col)
                     );
                 }
 
                 result.addRow(row);
             }
 
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
 
             throw new RuntimeException(
-                "Error ejecutando SELECT",
-                e
+                    "Error ejecutando SELECT.",
+                    e
             );
         }
 
         return result;
     }
-    
-    private int executeUpdate(
-            String sql,
-            Object... params) {
+
+    // =======================================================
+    // INSERT
+    // =======================================================
+
+    public int insert(
+            String tabla,
+            String[] columnas,
+            Object[] valores) {
+
+        validateTableName(tabla);
+        validateColumns(columnas);
+        validateColumnsAndValues(
+                columnas,
+                valores
+        );
+
+        String sql =
+                buildInsertSql(
+                        tabla,
+                        columnas
+                );
+
+        return executeUpdate(
+                sql,
+                valores
+        );
+    }
+
+    public int insertAndReturnId(
+            String tabla,
+            String[] columnas,
+            Object[] valores) {
+
+        validateTableName(tabla);
+        validateColumns(columnas);
+        validateColumnsAndValues(
+                columnas,
+                valores
+        );
+
+        String sql =
+                buildInsertSql(
+                        tabla,
+                        columnas
+                );
 
         try (
-            Connection cn = getConnection();
-            PreparedStatement ps =
-                    cn.prepareStatement(sql);
+                Connection cn =
+                        getConnection();
+
+                PreparedStatement ps =
+                        cn.prepareStatement(
+                                sql,
+                                Statement.RETURN_GENERATED_KEYS
+                        )
         ) {
 
-            for(int i = 0; i < params.length; i++) {
+            setParameters(
+                    ps,
+                    valores
+            );
 
-                ps.setObject(
-                        i + 1,
-                        params[i]
-                );
+            ps.executeUpdate();
+
+            ResultSet rs =
+                    ps.getGeneratedKeys();
+
+            if(rs.next()) {
+                return rs.getInt(1);
             }
 
-            return ps.executeUpdate();
+            throw new RuntimeException(
+                    "No fue posible recuperar el ID generado."
+            );
 
         } catch (Exception e) {
 
             throw new RuntimeException(
-                    "Error ejecutando actualización",
+                    "Error insertando registro.",
                     e
             );
         }
     }
 
-    
+    // =======================================================
+    // UPDATE
+    // =======================================================
+
+    public int update(
+            String tabla,
+            String[] columnas,
+            Object[] valores,
+            String where,
+            Object... whereParams) {
+    	
+    	if(whereParams == null
+    	        || whereParams.length == 0) {
+
+    	    throw new IllegalArgumentException(
+    	            "Los parámetros WHERE son obligatorios."
+    	    );
+    	}
+
+        validateTableName(tabla);
+        validateColumns(columnas);
+        validateColumnsAndValues(
+                columnas,
+                valores
+        );
+        validateWhere(where);
+
+        StringBuilder sql =
+                new StringBuilder();
+
+        sql.append("UPDATE ")
+                .append(tabla)
+                .append(" SET ");
+
+        for (int i = 0;
+             i < columnas.length;
+             i++) {
+
+            sql.append(columnas[i])
+                    .append("=?");
+
+            if (i < columnas.length - 1) {
+
+                sql.append(",");
+            }
+        }
+
+        sql.append(" WHERE ")
+                .append(where);
+
+        Object[] params =
+                mergeArrays(
+                        valores,
+                        whereParams
+                );
+
+        return executeUpdate(
+                sql.toString(),
+                params
+        );
+    }
+
+    // =======================================================
+    // DELETE
+    // =======================================================
+
     public int delete(
             String tabla,
             String where,
             Object... params) {
+    	
+    	if(params == null
+    	        || params.length == 0) {
+
+    	    throw new IllegalArgumentException(
+    	            "Debe proporcionar parámetros para el WHERE."
+    	    );
+    	}
+
+        validateTableName(tabla);
+        validateWhere(where);
 
         String sql =
                 "DELETE FROM "
-                + tabla
-                + " WHERE "
-                + where;
+                        + tabla
+                        + " WHERE "
+                        + where;
 
         return executeUpdate(
                 sql,
                 params
         );
     }
-    
-    public int insert(
+
+    // =======================================================
+    // EXECUTE UPDATE
+    // =======================================================
+
+    private int executeUpdate(
+            String sql,
+            Object... params) {
+
+        try (
+                Connection cn =
+                        getConnection();
+
+                PreparedStatement ps =
+                        cn.prepareStatement(sql)
+        ) {
+
+            setParameters(
+                    ps,
+                    params
+            );
+
+            return ps.executeUpdate();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Error ejecutando operación.",
+                    e
+            );
+        }
+    }
+
+    // =======================================================
+    // UTILIDADES
+    // =======================================================
+
+    private void setParameters(
+            PreparedStatement ps,
+            Object... params)
+            throws SQLException {
+
+        for (int i = 0;
+             i < params.length;
+             i++) {
+
+            validateParameter(
+                    params[i]
+            );
+
+            ps.setObject(
+                    i + 1,
+                    params[i]
+            );
+        }
+    }
+
+    private String buildInsertSql(
             String tabla,
-            String[] columnas,
-            Object[] valores) {
+            String[] columnas) {
 
         StringBuilder sql =
                 new StringBuilder();
 
         sql.append("INSERT INTO ")
-           .append(tabla)
-           .append(" (");
+                .append(tabla)
+                .append(" (");
 
         sql.append(
                 String.join(
@@ -180,80 +470,154 @@ public class MySQLManager {
 
         sql.append(") VALUES (");
 
-        for(int i = 0;
-            i < columnas.length;
-            i++) {
+        for (int i = 0;
+             i < columnas.length;
+             i++) {
 
             sql.append("?");
 
-            if(i < columnas.length - 1) {
+            if (i < columnas.length - 1) {
+
                 sql.append(",");
             }
         }
 
         sql.append(")");
 
-        return executeUpdate(
-                sql.toString(),
-                valores
-        );
+        return sql.toString();
     }
-    
-    public int update(
-            String tabla,
-            String[] columnas,
-            Object[] valores,
-            String where,
-            Object... whereParams) {
 
-        StringBuilder sql =
-                new StringBuilder();
+    private Object[] mergeArrays(
+            Object[] values,
+            Object[] whereValues) {
 
-        sql.append("UPDATE ")
-           .append(tabla)
-           .append(" SET ");
+        Object[] result =
+                new Object[
+                        values.length
+                                + whereValues.length
+                        ];
 
-        for(int i = 0;
-            i < columnas.length;
-            i++) {
+        System.arraycopy(
+                values,
+                0,
+                result,
+                0,
+                values.length
+        );
 
-            sql.append(columnas[i])
-               .append("=?");
+        System.arraycopy(
+                whereValues,
+                0,
+                result,
+                values.length,
+                whereValues.length
+        );
 
-            if(i < columnas.length - 1) {
-                sql.append(",");
-            }
+        return result;
+    }
+
+    // =======================================================
+    // SEGURIDAD
+    // =======================================================
+
+    private void validateTableName(
+            String table) {
+
+        if (table == null
+                || table.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "El nombre de tabla es obligatorio."
+            );
         }
 
-        sql.append(" WHERE ")
-           .append(where);
+        if (!VALID_TABLES.contains(
+                table.toLowerCase())) {
 
-        Object[] allParams =
-                new Object[
-                        valores.length
-                        + whereParams.length
-                ];
-
-        System.arraycopy(
-                valores,
-                0,
-                allParams,
-                0,
-                valores.length
-        );
-
-        System.arraycopy(
-                whereParams,
-                0,
-                allParams,
-                valores.length,
-                whereParams.length
-        );
-
-        return executeUpdate(
-                sql.toString(),
-                allParams
-        );
+            throw new IllegalArgumentException(
+                    "Tabla no permitida: "
+                            + table
+            );
+        }
     }
 
+    private void validateColumns(
+            String[] columns) {
+
+        if (columns == null
+                || columns.length == 0) {
+
+            throw new IllegalArgumentException(
+                    "Debe existir al menos una columna."
+            );
+        }
+
+        for (String column : columns) {
+
+            if (column == null
+                    || column.isBlank()) {
+
+                throw new IllegalArgumentException(
+                        "Nombre de columna inválido."
+                );
+            }
+
+            if (!SQL_IDENTIFIER
+                    .matcher(column)
+                    .matches()) {
+
+                throw new IllegalArgumentException(
+                        "Nombre de columna inválido: "
+                                + column
+                );
+            }
+        }
+    }
+
+    private void validateColumnsAndValues(
+            String[] columns,
+            Object[] values) {
+
+        if (values == null) {
+
+            throw new IllegalArgumentException(
+                    "Los valores no pueden ser nulos."
+            );
+        }
+
+        if (columns.length
+                != values.length) {
+
+            throw new IllegalArgumentException(
+                    "Cantidad de columnas y valores incompatible."
+            );
+        }
+    }
+
+    private void validateWhere(
+            String where) {
+
+        if (where == null
+                || where.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "La cláusula WHERE es obligatoria."
+            );
+        }
+    }
+
+    private void validateParameter(
+            Object value) {
+
+        if (value instanceof String texto) {
+
+            if (texto.length()
+                    > MAX_STRING_LENGTH) {
+
+                throw new IllegalArgumentException(
+                        "Parámetro demasiado grande."
+                );
+            }
+        }
+    }
 }

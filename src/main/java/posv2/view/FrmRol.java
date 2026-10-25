@@ -1,419 +1,332 @@
 package posv2.view;
 
-import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
 
 import posv2.controller.RolController;
 import posv2.model.Rol;
+import posv2.view.base.BaseCrudFrame;
 
-public class FrmRol extends JFrame {
+public class FrmRol extends BaseCrudFrame {
 
-	private static final long serialVersionUID = 1L;
+    private JTextField txtId;
+    private JTextField txtDescripcion;
 
-	
-	
-	private JTable tblRoles;
+    private final RolController controller;
 
-	private DefaultTableModel modeloTabla;
-	
-	private JTextField txtId;
-	private JTextField txtDescripcion;
-	
-	private JButton btnNuevo;
-	private JButton btnGuardar;
-	private JButton btnModificar;
-	private JButton btnEliminar;
-	private JButton btnConsultar;
-	
-	private final RolController controller;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					FrmRol frame = new FrmRol();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    public FrmRol() {
 
-	/**
-	 * Create the frame.
-	 */
-	public FrmRol() {
+        super("Catálogo de Roles");
 
-	    controller = new RolController();
+        controller = new RolController();
 
-	    inicializarComponentes();
+        configurarTabla();
 
-	    configurarVentana();
+        crearFormulario();
 
-	    cargarTabla();
-	}
-	
-	private void configurarVentana() {
+        registrarEventos();
 
-	    setTitle("Catálogo de Roles");
+        cargarTabla();
 
-	    setSize(700,500);
+        revalidate();
+        repaint();
+    }
 
-	    setLocationRelativeTo(null);
+    private void configurarTabla() {
 
-	    setDefaultCloseOperation(
-	            JFrame.DISPOSE_ON_CLOSE
-	    );
-	}
-	
-	private void inicializarComponentes() {
+        tableModel.setColumnCount(0);
 
-	    JPanel panel = new JPanel();
+        tableModel.addColumn("ID");
+        tableModel.addColumn("DESCRIPCIÓN");
+    }
 
-	    panel.setLayout(null);
+    private void crearFormulario() {
 
-	    add(panel);
+        pnlCenter.setLayout(new GridBagLayout());
 
-	    crearTabla(panel);
+        GridBagConstraints gbc =
+                new GridBagConstraints();
 
-	    crearFormulario(panel);
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
 
-	    crearBotones(panel);
+        // ID
 
-	    registrarEventos();
-	}
-	
-	private void crearTabla(JPanel panel) {
+        gbc.gridx = 0;
+        gbc.gridy = 0;
 
-	    modeloTabla =
-	            new DefaultTableModel();
+        pnlCenter.add(
+                new JLabel("ID:"),
+                gbc
+        );
 
-	    modeloTabla.addColumn("ID");
+        txtId = new JTextField(10);
 
-	    modeloTabla.addColumn(
-	            "DESCRIPCIÓN"
-	    );
+        txtId.setEditable(false);
 
-	    tblRoles =
-	            new JTable(modeloTabla);
+        gbc.gridx = 1;
 
-	    JScrollPane scroll =
-	            new JScrollPane(tblRoles);
-
-	    scroll.setBounds(
-	            20,
-	            20,
-	            640,
-	            200
-	    );
-
-	    panel.add(scroll);
-	}
-	
-	private void crearFormulario(
-	        JPanel panel) {
-
-	    JLabel lblId =
-	            new JLabel("ID:");
-
-	    lblId.setBounds(
-	            20,
-	            250,
-	            100,
-	            25
-	    );
-
-	    panel.add(lblId);
-
-	    txtId =
-	            new JTextField();
-
-	    txtId.setBounds(
-	            120,
-	            250,
-	            150,
-	            25
-	    );
-
-	    txtId.setEditable(false);
-
-	    panel.add(txtId);
-
-	    JLabel lblDescripcion =
-	            new JLabel("Descripción:");
-
-	    lblDescripcion.setBounds(
-	            20,
-	            290,
-	            100,
-	            25
-	    );
-
-	    panel.add(lblDescripcion);
-
-	    txtDescripcion =
-	            new JTextField();
-
-	    txtDescripcion.setBounds(
-	            120,
-	            290,
-	            250,
-	            25
-	    );
-
-	    panel.add(txtDescripcion);
-	}
-	
-	private void crearBotones(
-	        JPanel panel) {
-
-	    btnNuevo =
-	            new JButton("Nuevo");
-
-	    btnGuardar =
-	            new JButton("Guardar");
-
-	    btnModificar =
-	            new JButton("Modificar");
-
-	    btnEliminar =
-	            new JButton("Eliminar");
-
-	    btnConsultar =
-	            new JButton("Consultar");
-
-	    btnNuevo.setBounds(
-	            20,
-	            350,
-	            100,
-	            30
-	    );
-
-	    btnGuardar.setBounds(
-	            130,
-	            350,
-	            100,
-	            30
-	    );
-
-	    btnModificar.setBounds(
-	            240,
-	            350,
-	            100,
-	            30
-	    );
-
-	    btnEliminar.setBounds(
-	            350,
-	            350,
-	            100,
-	            30
-	    );
-
-	    btnConsultar.setBounds(
-	            460,
-	            350,
-	            100,
-	            30
-	    );
-
-	    panel.add(btnNuevo);
-	    panel.add(btnGuardar);
-	    panel.add(btnModificar);
-	    panel.add(btnEliminar);
-	    panel.add(btnConsultar);
-	}
-	
-	private void registrarEventos() {
-
-	    btnNuevo.addActionListener(
-	            e -> limpiarFormulario()
-	    );
-
-	    btnGuardar.addActionListener(
-	            e -> guardarRol()
-	    );
-
-	    btnModificar.addActionListener(
-	            e -> modificarRol()
-	    );
-
-	    btnEliminar.addActionListener(
-	            e -> eliminarRol()
-	    );
-
-	    btnConsultar.addActionListener(
-	            e -> cargarTabla()
-	    );
-
-	    tblRoles.getSelectionModel()
-	            .addListSelectionListener(
-	                    e -> seleccionarFila()
-	            );
-	}
-	
-	private void guardarRol() {
-
-	    try {
-
-	        Rol rol = new Rol();
-
-	        rol.setDescripcion(
-	                txtDescripcion.getText()
-	        );
-
-	        boolean guardado =
-	                controller.guardar(rol);
-
-	        if(guardado) {
-
-	            JOptionPane.showMessageDialog(
-	                    this,
-	                    "Rol guardado correctamente."
-	            );
-
-	            cargarTabla();
-
-	            limpiarFormulario();
-	        }
-
-	    } catch(Exception ex) {
-
-	        JOptionPane.showMessageDialog(
-	                this,
-	                ex.getMessage()
-	        );
-	    }
-	}
-	
-	private void modificarRol() {
-
-	    try {
-
-	        Rol rol = new Rol();
-
-	        rol.setIdRol(
-	                Integer.parseInt(
-	                        txtId.getText()
-	                )
-	        );
-
-	        rol.setDescripcion(
-	                txtDescripcion.getText()
-	        );
-
-	        if(controller.actualizar(
-	                rol)) {
-
-	            JOptionPane.showMessageDialog(
-	                    this,
-	                    "Rol actualizado."
-	            );
-
-	            cargarTabla();
-	        }
-
-	    } catch(Exception ex) {
-
-	        JOptionPane.showMessageDialog(
-	                this,
-	                ex.getMessage()
-	        );
-	    }
-	}
-	
-	private void eliminarRol() {
-
-	    if(txtId.getText().isBlank()) {
-
-	        return;
-	    }
-
-	    int respuesta =
-	            JOptionPane.showConfirmDialog(
-	                    this,
-	                    "¿Eliminar registro?"
-	            );
-
-	    if(respuesta ==
-	            JOptionPane.YES_OPTION) {
-
-	        controller.eliminar(
-	                Integer.parseInt(
-	                        txtId.getText()
-	                )
-	        );
-
-	        cargarTabla();
-
-	        limpiarFormulario();
-	    }
-	}
-	
-	private void cargarTabla() {
-
-	    modeloTabla.setRowCount(0);
-
-	    for(Rol rol :
-	            controller.listar()) {
-
-	        Object[] fila = {
-
-	                rol.getIdRol(),
-
-	                rol.getDescripcion()
-	        };
-
-	        modeloTabla.addRow(fila);
-	    }
-	}
-	
-	private void seleccionarFila() {
-
-	    int fila =
-	            tblRoles.getSelectedRow();
-
-	    if(fila == -1) {
-
-	        return;
-	    }
-
-	    txtId.setText(
-	            modeloTabla
-	                    .getValueAt(
-	                            fila,
-	                            0)
-	                    .toString()
-	    );
-
-	    txtDescripcion.setText(
-	            modeloTabla
-	                    .getValueAt(
-	                            fila,
-	                            1)
-	                    .toString()
-	    );
-	}
-
-	private void limpiarFormulario() {
-
-	    txtId.setText("");
-
-	    txtDescripcion.setText("");
-
-	    txtDescripcion.requestFocus();
-	}
+        pnlCenter.add(
+                txtId,
+                gbc
+        );
+
+        // DESCRIPCIÓN
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+
+        pnlCenter.add(
+                new JLabel("Descripción:"),
+                gbc
+        );
+
+        txtDescripcion =
+                new JTextField(25);
+
+        gbc.gridx = 1;
+
+        pnlCenter.add(
+                txtDescripcion,
+                gbc
+        );
+    }
+
+    private void registrarEventos() {
+
+        table.getSelectionModel()
+             .addListSelectionListener(
+                     e -> {
+
+                         if (!e.getValueIsAdjusting()) {
+
+                             seleccionarFila();
+                         }
+                     }
+             );
+    }
+
+    @Override
+    protected void onNuevo() {
+
+        limpiarFormulario();
+    }
+
+    @Override
+    protected void onGuardar() {
+
+        guardarRol();
+    }
+
+    @Override
+    protected void onModificar() {
+
+        modificarRol();
+    }
+
+    @Override
+    protected void onEliminar() {
+
+        eliminarRol();
+    }
+
+    @Override
+    protected void onConsultar() {
+
+        cargarTabla();
+    }
+
+    private void guardarRol() {
+
+        try {
+
+            Rol rol = new Rol();
+
+            rol.setDescripcion(
+                    txtDescripcion.getText().trim()
+            );
+
+            Rol rolGuardado =
+                    controller.guardar(rol);
+
+            txtId.setText(
+                    String.valueOf(
+                            rolGuardado.getIdRol()
+                    )
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Rol guardado correctamente."
+            );
+
+            cargarTabla();
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void modificarRol() {
+
+        try {
+
+            if (txtId.getText().isBlank()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Seleccione un registro."
+                );
+
+                return;
+            }
+
+            Rol rol = new Rol();
+
+            rol.setIdRol(
+                    Integer.parseInt(
+                            txtId.getText()
+                    )
+            );
+
+            rol.setDescripcion(
+                    txtDescripcion.getText().trim()
+            );
+
+            controller.actualizar(rol);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Rol actualizado correctamente."
+            );
+
+            cargarTabla();
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void eliminarRol() {
+
+        try {
+
+            if (txtId.getText().isBlank()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Seleccione un registro."
+                );
+
+                return;
+            }
+
+            int respuesta =
+                    JOptionPane.showConfirmDialog(
+                            this,
+                            "¿Desea eliminar el registro?",
+                            "Confirmar",
+                            JOptionPane.YES_NO_OPTION
+                    );
+
+            if (respuesta != JOptionPane.YES_OPTION) {
+
+                return;
+            }
+
+            controller.eliminar(
+                    Integer.parseInt(
+                            txtId.getText()
+                    )
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Rol eliminado."
+            );
+
+            cargarTabla();
+
+            limpiarFormulario();
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void cargarTabla() {
+
+        tableModel.setRowCount(0);
+
+        List<Rol> roles =
+                controller.listar();
+
+        for (Rol rol : roles) {
+
+            tableModel.addRow(
+                    new Object[] {
+                            rol.getIdRol(),
+                            rol.getDescripcion()
+                    }
+            );
+        }
+    }
+
+    private void seleccionarFila() {
+
+        int fila =
+                table.getSelectedRow();
+
+        if (fila < 0) {
+
+            return;
+        }
+
+        txtId.setText(
+                tableModel.getValueAt(
+                        fila,
+                        0
+                ).toString()
+        );
+
+        txtDescripcion.setText(
+                tableModel.getValueAt(
+                        fila,
+                        1
+                ).toString()
+        );
+    }
+
+    private void limpiarFormulario() {
+
+        txtId.setText("");
+
+        txtDescripcion.setText("");
+
+        txtDescripcion.requestFocus();
+    }
 }

@@ -5,39 +5,42 @@ import java.util.List;
 
 public class QueryResult {
 
-	 private final List<DataRow> rows;
+    private final List<DataRow> rows;
 
-	    public QueryResult() {
+    public QueryResult() {
 
-	        rows = new ArrayList<>();
-	    }
+        this.rows =
+                new ArrayList<>();
+    }
 
-	    public void addRow(DataRow row) {
+    public void addRow(
+            DataRow row) {
 
-	        rows.add(row);
-	    }
+        rows.add(row);
+    }
 
-	    public List<DataRow> getRows() {
+    public List<DataRow> getRows() {
 
-	        return rows;
-	    }
+        return rows;
+    }
 
-	    public DataRow first() {
+    public DataRow first() {
 
-	        if(rows.isEmpty()) {
-	            return null;
-	        }
+        if(rows.isEmpty()) {
 
-	        return rows.get(0);
-	    }
+            return null;
+        }
 
-	    public int size() {
+        return rows.get(0);
+    }
 
-	        return rows.size();
-	    }
+    public boolean isEmpty() {
 
-	    public boolean isEmpty() {
+        return rows.isEmpty();
+    }
 
-	        return rows.isEmpty();
-	    }
+    public int size() {
+
+        return rows.size();
+    }
 }

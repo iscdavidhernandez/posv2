@@ -7,115 +7,43 @@ import posv2.service.RolService;
 
 public class RolController {
 
-	 private final RolService service;
+	private final RolService service;
 
-	    public RolController() {
+    public RolController() {
 
-	        this.service = new RolService();
-	    }
+        this.service = new RolService();
+    }
 
-	    public boolean guardar(Rol rol) {
+    public Rol guardar(Rol rol) {
 
-	        try {
+        return service.guardar(rol);
+    }
 
-	            service.guardar(rol);
+    public Rol actualizar(Rol rol) {
 
-	            return true;
+        return service.actualizar(rol);
+    }
 
-	        } catch(Exception e) {
+    public void eliminar(int idRol) {
 
-	            System.err.println(
-	                    e.getMessage()
-	            );
+        service.eliminar(idRol);
+    }
 
-	            return false;
-	        }
-	    }
+    public Rol buscarPorId(int idRol) {
 
-	    public boolean actualizar(Rol rol) {
+        return service.buscarPorId(idRol);
+    }
 
-	        try {
+    public List<Rol> listar() {
 
-	            service.actualizar(rol);
+        return service.listar();
+    }
 
-	            return true;
+    public List<Rol> buscarPorDescripcion(
+            String descripcion) {
 
-	        } catch(Exception e) {
-
-	            System.err.println(
-	                    e.getMessage()
-	            );
-
-	            return false;
-	        }
-	    }
-
-	    public boolean eliminar(int idRol) {
-
-	        try {
-
-	            service.eliminar(idRol);
-
-	            return true;
-
-	        } catch(Exception e) {
-
-	            System.err.println(
-	                    e.getMessage()
-	            );
-
-	            return false;
-	        }
-	    }
-
-	    public Rol buscarPorId(int idRol) {
-
-	        try {
-
-	            return service.buscarPorId(idRol);
-
-	        } catch(Exception e) {
-
-	            System.err.println(
-	                    e.getMessage()
-	            );
-
-	            return null;
-	        }
-	    }
-
-	    public List<Rol> listar() {
-
-	        try {
-
-	            return service.listar();
-
-	        } catch(Exception e) {
-
-	            System.err.println(
-	                    e.getMessage()
-	            );
-
-	            return List.of();
-	        }
-	    }
-
-	    public List<Rol> buscarPorDescripcion(
-	            String descripcion) {
-
-	        try {
-
-	            return service.buscarPorDescripcion(
-	                    descripcion
-	            );
-
-	        } catch(Exception e) {
-
-	            System.err.println(
-	                    e.getMessage()
-	            );
-
-	            return List.of();
-	        }
-	    }
+        return service.buscarPorDescripcion(
+                descripcion
+        );
+    }
 }

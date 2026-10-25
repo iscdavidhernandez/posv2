@@ -8,18 +8,17 @@ import posv2.database.MySQLManager;
 import posv2.database.QueryResult;
 import posv2.model.Rol;
 
-public class RolRepository {
-	
+public class RolRepository
+        implements CrudRepository<Rol> {
 
-	private final MySQLManager db;
+    private final MySQLManager db;
 
     public RolRepository() {
+
         this.db = MySQLManager.getInstance();
     }
 
-    /**
-     * Guarda un nuevo rol.
-     */
+    @Override
     public int guardar(Rol rol) {
 
         String[] columnas = {
@@ -30,16 +29,14 @@ public class RolRepository {
                 rol.getDescripcion()
         };
 
-        return db.insert(
+        return db.insertAndReturnId(
                 "rol",
                 columnas,
                 valores
         );
     }
 
-    /**
-     * Actualiza un rol existente.
-     */
+    @Override
     public int actualizar(Rol rol) {
 
         String[] columnas = {
@@ -59,9 +56,7 @@ public class RolRepository {
         );
     }
 
-    /**
-     * Elimina un rol por su ID.
-     */
+    @Override
     public int eliminar(int idRol) {
 
         return db.delete(
@@ -71,35 +66,63 @@ public class RolRepository {
         );
     }
 
-    /**
-     * Busca un rol por ID.
-     */
-    public Rol buscarPorId(int idRol) {
+    @Override
+    public Rol buscarPorId(
+            int idRol) {
 
-        QueryResult result = db.select(
-                "SELECT idrol, descripcion FROM rol WHERE idrol = ? ",
-                idRol
-        );
+        QueryResult result =
+                db.select(
+                        """
+                        SELECT *
+                        FROM rol
+                        WHERE idrol=?
+                        """,
+                        idRol
+                );
 
-        if (result.isEmpty()) {
+        if(result.isEmpty()) {
+
             return null;
         }
 
-        return mapRow(result.first());
+        return mapRow(
+                result.first()
+        );
     }
 
-    /**
-     * Obtiene todos los roles.
-     */
+    @Override
     public List<Rol> listar() {
 
-        List<Rol> roles = new ArrayList<>();
-
-        QueryResult result = db.select(
-                " SELECT idrol, descripcion FROM rol ORDER BY descripcion "
+        return db.selectList(
+                """
+                SELECT *
+                FROM rol
+                ORDER BY descripcion
+                """,
+                this::mapRow
         );
+    }
 
-        for (DataRow row : result.getRows()) {
+    public List<Rol> buscarPorDescripcion(
+            String descripcion) {
+
+        List<Rol> roles =
+                new ArrayList<>();
+
+        QueryResult result =
+                db.select(
+                        """
+                        SELECT
+                            idrol,
+                            descripcion
+                        FROM rol
+                        WHERE descripcion LIKE ?
+                        ORDER BY descripcion
+                        """,
+                        "%" + descripcion + "%"
+                );
+
+        for(DataRow row : result.getRows()) {
 
             roles.add(
                     mapRow(row)
@@ -109,65 +132,47 @@ public class RolRepository {
         return roles;
     }
 
-    /**
-     * Busca roles por descripción.
-     */
-    public List<Rol> buscarPorDescripcion(String descripcion) {
+    public boolean existeDescripcion(
+            String descripcion) {
 
-        List<Rol> roles = new ArrayList<>();
+        QueryResult result =
+                db.select(
+                        """
+                        SELECT COUNT(*) AS total
+                        FROM rol
+                        WHERE descripcion = ?
+                        """,
+                        descripcion
+                );
 
-        QueryResult result = db.select(
-                " SELECT idrol, descripcion FROM rol WHERE descripcion LIKE ? ORDER BY descripcion ",
-                "%" + descripcion + "%"
-        );
+        if(result.isEmpty()) {
 
-        for (DataRow row : result.getRows()) {
-
-            roles.add(
-                    mapRow(row)
-            );
-        }
-
-        return roles;
-    }
-
-    /**
-     * Verifica si existe un rol con la descripción indicada.
-     */
-    public boolean existeDescripcion(String descripcion) {
-
-        QueryResult result = db.select(
-                " SELECT COUNT(*) AS total FROM rol WHERE descripcion = ? ",
-                descripcion
-        );
-
-        if (result.isEmpty()) {
             return false;
         }
 
-        Integer total = result
-                .first()
-                .getInt("total");
+        Integer total =
+                result.first()
+                      .getInt("total");
 
-        return total != null && total > 0;
+        return total != null
+                && total > 0;
     }
 
     /**
-     * Convierte una fila de datos en un objeto Rol.
+     * Convierte una fila de BD en un objeto Rol.
      */
     private Rol mapRow(DataRow row) {
 
         Rol rol = new Rol();
 
         rol.setIdRol(
-                row.getInt("idrol")
+                row.getInt("IdRol")
         );
 
         rol.setDescripcion(
-                row.getString("descripcion")
+                row.getString("Descripcion")
         );
 
         return rol;
     }
-	
 }
