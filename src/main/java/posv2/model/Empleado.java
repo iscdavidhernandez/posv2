@@ -2,17 +2,22 @@ package posv2.model;
 
 public class Empleado {
 
-	private int idEmpleado;
+    private int idEmpleado;
+
     private String nombre;
+
     private String rfc;
+
     private String correoElectronico;
 
     public Empleado() {
     }
 
-    public Empleado(int idEmpleado, String nombre,
-                     String rfc,
-                     String correoElectronico) {
+    public Empleado(
+            int idEmpleado,
+            String nombre,
+            String rfc,
+            String correoElectronico) {
 
         this.idEmpleado = idEmpleado;
         this.nombre = nombre;
@@ -24,7 +29,8 @@ public class Empleado {
         return idEmpleado;
     }
 
-    public void setIdEmpleado(int idEmpleado) {
+    public void setIdEmpleado(
+            int idEmpleado) {
         this.idEmpleado = idEmpleado;
     }
 
@@ -32,7 +38,8 @@ public class Empleado {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
+    public void setNombre(
+            String nombre) {
         this.nombre = nombre;
     }
 
@@ -40,7 +47,8 @@ public class Empleado {
         return rfc;
     }
 
-    public void setRfc(String rfc) {
+    public void setRfc(
+            String rfc) {
         this.rfc = rfc;
     }
 
@@ -48,12 +56,14 @@ public class Empleado {
         return correoElectronico;
     }
 
-    public void setCorreoElectronico(String correoElectronico) {
+    public void setCorreoElectronico(
+            String correoElectronico) {
         this.correoElectronico = correoElectronico;
     }
 
     @Override
     public String toString() {
+
         return nombre;
     }
 }

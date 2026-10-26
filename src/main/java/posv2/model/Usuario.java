@@ -2,71 +2,81 @@ package posv2.model;
 
 public class Usuario {
 
-	  private int idUsuario;
-	    private String nick;
-	    private String contrasenia;
+    private int idUsuario;
 
-	    private Rol rol;
-	    private Empleado empleado;
+    private String nick;
 
-	    public Usuario() {
-	    }
+    private String contrasenia;
 
-	    public Usuario(int idUsuario,
-	                   String nick,
-	                   String contrasenia,
-	                   Rol rol,
-	                   Empleado empleado) {
+    private Rol rol;
 
-	        this.idUsuario = idUsuario;
-	        this.nick = nick;
-	        this.contrasenia = contrasenia;
-	        this.rol = rol;
-	        this.empleado = empleado;
-	    }
+    private Empleado empleado;
 
-	    public int getIdUsuario() {
-	        return idUsuario;
-	    }
+    public Usuario() {
+    }
 
-	    public void setIdUsuario(int idUsuario) {
-	        this.idUsuario = idUsuario;
-	    }
+    public Usuario(
+            int idUsuario,
+            String nick,
+            String contrasenia,
+            Rol rol,
+            Empleado empleado) {
 
-	    public String getNick() {
-	        return nick;
-	    }
+        this.idUsuario = idUsuario;
+        this.nick = nick;
+        this.contrasenia = contrasenia;
+        this.rol = rol;
+        this.empleado = empleado;
+    }
 
-	    public void setNick(String nick) {
-	        this.nick = nick;
-	    }
+    public int getIdUsuario() {
+        return idUsuario;
+    }
 
-	    public String getContrasenia() {
-	        return contrasenia;
-	    }
+    public void setIdUsuario(
+            int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
 
-	    public void setContrasenia(String contrasenia) {
-	        this.contrasenia = contrasenia;
-	    }
+    public String getNick() {
+        return nick;
+    }
 
-	    public Rol getRol() {
-	        return rol;
-	    }
+    public void setNick(
+            String nick) {
+        this.nick = nick;
+    }
 
-	    public void setRol(Rol rol) {
-	        this.rol = rol;
-	    }
+    public String getContrasenia() {
+        return contrasenia;
+    }
 
-	    public Empleado getEmpleado() {
-	        return empleado;
-	    }
+    public void setContrasenia(
+            String contrasenia) {
+        this.contrasenia = contrasenia;
+    }
 
-	    public void setEmpleado(Empleado empleado) {
-	        this.empleado = empleado;
-	    }
+    public Rol getRol() {
+        return rol;
+    }
 
-	    @Override
-	    public String toString() {
-	        return nick;
-	    }
+    public void setRol(
+            Rol rol) {
+        this.rol = rol;
+    }
+
+    public Empleado getEmpleado() {
+        return empleado;
+    }
+
+    public void setEmpleado(
+            Empleado empleado) {
+        this.empleado = empleado;
+    }
+
+    @Override
+    public String toString() {
+
+        return nick;
+    }
 }

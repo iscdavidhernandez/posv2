@@ -250,12 +250,54 @@ public class MainFrame extends JFrame {
 
     private void abrirFrmEmpleado() {
 
-        // Pendiente
+    	for(var frame : desktopPane.getAllFrames()) {
+
+            if(frame instanceof FrmEmpleado) {
+
+                try {
+
+                    frame.setSelected(true);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+
+                return;
+            }
+        }
+
+    	FrmEmpleado frm = new FrmEmpleado();
+
+        desktopPane.add(frm);
+
+        frm.setVisible(true);
     }
 
     private void abrirFrmUsuario() {
 
-        // Pendiente
+    	for(var frame : desktopPane.getAllFrames()) {
+
+            if(frame instanceof FrmUsuario) {
+
+                try {
+
+                    frame.setSelected(true);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+
+                return;
+            }
+        }
+
+    	FrmUsuario frm = new FrmUsuario();
+
+        desktopPane.add(frm);
+
+        frm.setVisible(true);
     }
 
     private void abrirFrmRolPermiso() {
