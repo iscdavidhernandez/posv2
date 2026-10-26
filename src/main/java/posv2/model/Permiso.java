@@ -2,74 +2,77 @@ package posv2.model;
 
 public class Permiso {
 
-	 private int idPermiso;
+    private int idPermiso;
 
-	    private String nombre;
-	    private String descripcion;
-	    private String formularioDestino;
+    private String nombre;
 
-	    private Grupo grupo;
+    private String descripcion;
 
-	    public Permiso() {
-	    }
+    private String formularioDestino;
 
-	    public Permiso(
-	            int idPermiso,
-	            String nombre,
-	            String descripcion,
-	            String formularioDestino,
-	            Grupo grupo) {
+    private Grupo grupo;
 
-	        this.idPermiso = idPermiso;
-	        this.nombre = nombre;
-	        this.descripcion = descripcion;
-	        this.formularioDestino = formularioDestino;
-	        this.grupo = grupo;
-	    }
+    public Permiso() {
+    }
 
-	    public int getIdPermiso() {
-	        return idPermiso;
-	    }
+    public Permiso(
+            int idPermiso,
+            String nombre,
+            String descripcion,
+            String formularioDestino,
+            Grupo grupo) {
 
-	    public void setIdPermiso(int idPermiso) {
-	        this.idPermiso = idPermiso;
-	    }
+        this.idPermiso = idPermiso;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.formularioDestino = formularioDestino;
+        this.grupo = grupo;
+    }
 
-	    public String getNombre() {
-	        return nombre;
-	    }
+    public int getIdPermiso() {
+        return idPermiso;
+    }
 
-	    public void setNombre(String nombre) {
-	        this.nombre = nombre;
-	    }
+    public void setIdPermiso(int idPermiso) {
+        this.idPermiso = idPermiso;
+    }
 
-	    public String getDescripcion() {
-	        return descripcion;
-	    }
+    public String getNombre() {
+        return nombre;
+    }
 
-	    public void setDescripcion(String descripcion) {
-	        this.descripcion = descripcion;
-	    }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-	    public String getFormularioDestino() {
-	        return formularioDestino;
-	    }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-	    public void setFormularioDestino(String formularioDestino) {
-	        this.formularioDestino = formularioDestino;
-	    }
+    public void setDescripcion(
+            String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-	    public Grupo getGrupo() {
-	        return grupo;
-	    }
+    public String getFormularioDestino() {
+        return formularioDestino;
+    }
 
-	    public void setGrupo(Grupo grupo) {
-	        this.grupo = grupo;
-	    }
+    public void setFormularioDestino(
+            String formularioDestino) {
+        this.formularioDestino = formularioDestino;
+    }
 
-	    @Override
-	    public String toString() {
-	        return nombre;
-	    }
-	    
+    public Grupo getGrupo() {
+        return grupo;
+    }
+
+    public void setGrupo(Grupo grupo) {
+        this.grupo = grupo;
+    }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
 }
