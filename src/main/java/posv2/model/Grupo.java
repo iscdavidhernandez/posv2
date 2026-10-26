@@ -2,61 +2,66 @@ package posv2.model;
 
 public class Grupo {
 
-	  private int idGrupo;
-	    private String nombre;
-	    private String descripcion;
+    private int idGrupo;
 
-	    private Modulo modulo;
+    private String nombre;
 
-	    public Grupo() {
-	    }
+    private String descripcion;
 
-	    public Grupo(int idGrupo,
-	                 String nombre,
-	                 String descripcion,
-	                 Modulo modulo) {
+    private Modulo modulo;
 
-	        this.idGrupo = idGrupo;
-	        this.nombre = nombre;
-	        this.descripcion = descripcion;
-	        this.modulo = modulo;
-	    }
+    public Grupo() {
+    }
 
-	    public int getIdGrupo() {
-	        return idGrupo;
-	    }
+    public Grupo(
+            int idGrupo,
+            String nombre,
+            String descripcion,
+            Modulo modulo) {
 
-	    public void setIdGrupo(int idGrupo) {
-	        this.idGrupo = idGrupo;
-	    }
+        this.idGrupo = idGrupo;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.modulo = modulo;
+    }
 
-	    public String getNombre() {
-	        return nombre;
-	    }
+    public int getIdGrupo() {
+        return idGrupo;
+    }
 
-	    public void setNombre(String nombre) {
-	        this.nombre = nombre;
-	    }
+    public void setIdGrupo(int idGrupo) {
+        this.idGrupo = idGrupo;
+    }
 
-	    public String getDescripcion() {
-	        return descripcion;
-	    }
+    public String getNombre() {
+        return nombre;
+    }
 
-	    public void setDescripcion(String descripcion) {
-	        this.descripcion = descripcion;
-	    }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-	    public Modulo getModulo() {
-	        return modulo;
-	    }
+    public String getDescripcion() {
+        return descripcion;
+    }
 
-	    public void setModulo(Modulo modulo) {
-	        this.modulo = modulo;
-	    }
+    public void setDescripcion(
+            String descripcion) {
+        this.descripcion = descripcion;
+    }
 
-	    @Override
-	    public String toString() {
-	        return nombre;
-	    }
-	    
+    public Modulo getModulo() {
+        return modulo;
+    }
+
+    public void setModulo(
+            Modulo modulo) {
+        this.modulo = modulo;
+    }
+
+    @Override
+    public String toString() {
+
+        return nombre;
+    }
 }

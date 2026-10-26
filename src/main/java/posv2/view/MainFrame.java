@@ -198,7 +198,28 @@ public class MainFrame extends JFrame {
 
     private void abrirFrmGrupo() {
 
-        // Pendiente
+        for(var frame : desktopPane.getAllFrames()) {
+
+            if(frame instanceof FrmGrupo) {
+
+                try {
+
+                    frame.setSelected(true);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+
+                return;
+            }
+        }
+
+        FrmGrupo frm = new FrmGrupo();
+
+        desktopPane.add(frm);
+
+        frm.setVisible(true);
     }
 
     private void abrirFrmPermiso() {
